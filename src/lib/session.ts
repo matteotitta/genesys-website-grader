@@ -15,11 +15,15 @@ export interface AppSession {
 }
 
 /**
- * Dev auth bypass. Keyless by default in development; set DEV_NO_AUTH=false to
- * test real Google sign-in locally. Can never be active in a production build
- * (NODE_ENV gate), so it will not weaken a real deployment.
+ * When true, the app skips Google sign-in and runs keyless. Two triggers:
+ *  - Development: on by default (set DEV_NO_AUTH=false to test real sign-in).
+ *  - PUBLIC_DEMO=true: an explicit opt-in for a hosted public demo (any env).
+ * A real production deploy that leaves PUBLIC_DEMO unset keeps sign-in intact.
  */
-function devBypassEnabled(): boolean {
+function bypassEnabled(): boolean {
+  // NEXT_PUBLIC_ is inlined at build (available in serverless functions too),
+  // so the demo works on a hosted deploy; PUBLIC_DEMO covers runtime-only envs.
+  if (process.env.PUBLIC_DEMO === 'true' || process.env.NEXT_PUBLIC_PUBLIC_DEMO === 'true') return true;
   return process.env.NODE_ENV !== 'production' && process.env.DEV_NO_AUTH !== 'false';
 }
 
@@ -28,7 +32,7 @@ function devBypassEnabled(): boolean {
  * Use this in API routes instead of calling `auth()` directly.
  */
 export async function getSession(): Promise<AppSession | null> {
-  if (devBypassEnabled()) {
+  if (bypassEnabled()) {
     return { user: { email: 'demo@localhost', name: 'Demo User', isAdmin: true } };
   }
 

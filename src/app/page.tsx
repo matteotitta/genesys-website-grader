@@ -52,12 +52,13 @@ export default function Home() {
   const historyRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
 
-  // Dev auth bypass — the whole flow runs locally without Google OAuth.
-  // Keyless by default in development; set NEXT_PUBLIC_DEV_NO_AUTH=false to test
-  // real sign-in. Never active in a production build (NODE_ENV gate).
+  // Skip Google sign-in and run keyless when either: development (default), or
+  // an explicit public-demo deploy (NEXT_PUBLIC_PUBLIC_DEMO=true). A real
+  // production deploy that leaves it unset keeps sign-in intact.
   const devBypass =
-    process.env.NODE_ENV !== 'production' &&
-    process.env.NEXT_PUBLIC_DEV_NO_AUTH !== 'false';
+    process.env.NEXT_PUBLIC_PUBLIC_DEMO === 'true' ||
+    (process.env.NODE_ENV !== 'production' &&
+      process.env.NEXT_PUBLIC_DEV_NO_AUTH !== 'false');
   const user = session?.user ?? (devBypass ? { name: 'Demo User', email: 'demo@localhost' } : undefined);
 
   // Use mainUrl from store for persistence (instead of local state)
