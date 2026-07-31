@@ -1,0 +1,194 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * Genesys Growth design system — ink canvas, mint signature accent, General Sans.
+ * General Sans is loaded from the Fontshare CDN (see app/layout.tsx).
+ */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'General Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-2xl: calc(var(--radius) + 12px);
+  --radius-3xl: calc(var(--radius) + 24px);
+}
+
+/*
+ * GENESYS GROWTH — dark theme tokens
+ *   ink       #181723  canvas / surface
+ *   mint      #BAFDFF  signature accent
+ *   violet    #6400D7  brand accent
+ *   lavender  #939BED  secondary accent
+ *   paper     #FAFFF9  primary foreground
+ */
+:root {
+  --radius: 0.75rem;
+
+  --background: #181723;
+  --foreground: #fafff9;
+
+  --card: #201f2b;
+  --card-foreground: #fafff9;
+
+  --popover: #201f2b;
+  --popover-foreground: #fafff9;
+
+  /* Primary = mint. The signature accent + the primary CTA. */
+  --primary: #bafdff;
+  --primary-foreground: #14131b;
+
+  --secondary: #262530;
+  --secondary-foreground: #ededf0;
+
+  --muted: #262530;
+  --muted-foreground: #9e9dab;
+
+  /* Neutral hover accent — deliberately NOT mint, so mint stays scarce. */
+  --accent: #2b2a36;
+  --accent-foreground: #fafff9;
+
+  /* Brand violet — used sparingly for secondary emphasis. */
+  --brand: #6400d7;
+  --brand-foreground: #fafff9;
+
+  --destructive: #ff6b6b;
+  --destructive-foreground: #14131b;
+
+  --border: #302f3b;
+  --input: #302f3b;
+  --ring: #bafdff;
+
+  /* Score ramp — three semantic tones, good → weak. */
+  --score-high: #bafdff; /* mint */
+  --score-mid: #939bed;  /* lavender */
+  --score-low: #ffb27a;  /* peach */
+
+  /* Charts — restrained: mint, violet, lavender, peach, paper-muted. */
+  --chart-1: #bafdff;
+  --chart-2: #6400d7;
+  --chart-3: #939bed;
+  --chart-4: #ffb27a;
+  --chart-5: #c8d1d3;
+
+  /* Signature hard, un-blurred drop shadow. */
+  --shadow-flat: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'General Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-feature-settings: 'ss01' on, 'ss02' on;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+}
+
+/* Card hover — hairline brightens, no glow. */
+.result-card,
+.card-hover {
+  transition: border-color 0.25s ease;
+}
+.result-card:hover,
+.card-hover:hover {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+}
+
+/* Subtle attention pulse on a low-scoring dimension (mint border, no heavy glow). */
+@keyframes brilliance {
+  0%, 100% { border-color: var(--border); }
+  50% { border-color: color-mix(in srgb, var(--primary) 55%, var(--border)); }
+}
+.animate-brilliance {
+  animation: brilliance 2.4s ease-in-out infinite;
+}
+
+/* Score chips. */
+.score-positive { color: var(--score-high); background-color: color-mix(in srgb, var(--score-high) 12%, transparent); }
+.score-negative { color: var(--score-low); background-color: color-mix(in srgb, var(--score-low) 12%, transparent); }
+.score-neutral { color: var(--muted-foreground); background-color: color-mix(in srgb, var(--muted-foreground) 12%, transparent); }
+
+/* Pills. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Stat display. */
+.stat-value { font-size: 2.5rem; font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+.stat-label { font-size: 0.875rem; color: var(--muted-foreground); margin-top: 0.5rem; }
+
+/* Dark scrollbar. */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--background); }
+::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border); }
+
+/* Logo ticker marquee. */
+.logo-ticker-container {
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+.logo-ticker {
+  display: flex;
+  align-items: center;
+  animation: ticker 30s linear infinite;
+  width: fit-content;
+}
+.logo-ticker:hover { animation-play-state: paused; }
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Logo spin-on-hover. */
+.logo-spin { transition: transform 0.6s ease-in-out; }
+.logo-spin:hover { transform: rotate(360deg); }
+.logo-spin-trigger:hover .logo-spin-target { transform: rotate(360deg); }
+.logo-spin-target { transition: transform 0.6s ease-in-out; }
