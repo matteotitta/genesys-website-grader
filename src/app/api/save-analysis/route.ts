@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getSession } from '@/lib/session';
 import { checkRateLimit, rateLimitKey } from '@/lib/rate-limit';
 import { saveSubmission } from '@/lib/db/sheets';
+import { addSubscriberToNewsletter } from '@/lib/kit';
 import type { PMScoreResult, PMScoreDimension } from '@/types/analysis';
 
 const PMScoreSchema = z.object({
@@ -76,6 +77,11 @@ export async function POST(request: NextRequest) {
       userEmail: userEmail || session.user.email || undefined,
       userName: session.user.name || undefined,
     });
+
+    // Best-effort: add the gated email to the Kit newsletter (never blocks the response)
+    if (userEmail) {
+      await addSubscriberToNewsletter({ email: userEmail });
+    }
 
     return NextResponse.json({ saved: result.ok });
   } catch (err) {
