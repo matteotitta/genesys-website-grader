@@ -318,7 +318,7 @@ export async function POST(request: NextRequest) {
 
           // Step 3: Complete — client will save to DB via /api/save-analysis
           // (Vercel Hobby has 10s function timeout; save must happen in a separate request)
-          const modelUsed = aiProvider === 'anthropic' ? 'claude-sonnet-4-20250514' : 'grok-3-mini-beta';
+          const modelUsed = aiProvider === 'anthropic' ? 'claude-sonnet-5' : 'grok-3-mini-beta';
 
           send({
             type: 'complete',

@@ -19,6 +19,7 @@ const SaveAnalysisSchema = z.object({
   reportId: z.string().min(1).max(100),
   slug: z.string().min(1).max(200),
   mainUrl: z.string().url().max(2000),
+  userEmail: z.string().email().max(320).optional(),
   mainTitle: z.string().max(500).optional(),
   mainDescription: z.string().max(2000).optional(),
   pmScore: PMScoreSchema,
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
     if (!parseResult.success) {
       return NextResponse.json({ error: 'Invalid request data' }, { status: 400 });
     }
-    const { reportId, mainUrl, pmScore: rawPmScore, modelUsed } = parseResult.data;
+    const { reportId, mainUrl, pmScore: rawPmScore, modelUsed, userEmail } = parseResult.data;
     const pmScore = rawPmScore as unknown as PMScoreResult;
 
     // Flatten per-dimension scores to a name → score map for the Sheet columns.
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
       dimensionScores,
       summary: pmScore.summary,
       modelUsed,
-      userEmail: session.user.email || undefined,
+      userEmail: userEmail || session.user.email || undefined,
       userName: session.user.name || undefined,
     });
 

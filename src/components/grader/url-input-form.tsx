@@ -13,9 +13,14 @@ import {
 } from '@/components/ui/tooltip';
 
 interface UrlInputFormProps {
-  onSubmit: (mainUrl: string) => void;
+  onSubmit: (mainUrl: string, email?: string) => void;
   isLoading?: boolean;
 }
+
+// Branded/lead-gen deploys set NEXT_PUBLIC_REQUIRE_EMAIL=true to gate results
+// behind an email address. The open-source demo leaves it unset, so no email
+// field is shown and behavior is unchanged.
+const requireEmail = process.env.NEXT_PUBLIC_REQUIRE_EMAIL === 'true';
 
 function isValidUrl(url: string): boolean {
   try {
@@ -34,8 +39,13 @@ function normalizeUrl(url: string): string {
   return normalized;
 }
 
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFormProps) {
   const [mainUrl, setMainUrl] = useState('');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -52,8 +62,20 @@ export function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFormProps)
       return;
     }
 
+    // Validate email when the branded email gate is enabled
+    if (requireEmail) {
+      if (!email.trim()) {
+        setError('Email is required');
+        return;
+      }
+      if (!isValidEmail(email.trim())) {
+        setError('Please enter a valid email');
+        return;
+      }
+    }
+
     setError(null);
-    onSubmit(normalizedMain);
+    onSubmit(normalizedMain, requireEmail ? email.trim() : undefined);
   };
 
   return (
@@ -82,10 +104,34 @@ export function UrlInputForm({ onSubmit, isLoading = false }: UrlInputFormProps)
               autoCorrect="off"
               spellCheck="false"
             />
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
           </div>
+
+          {/* Email gate — only rendered on branded deploys (NEXT_PUBLIC_REQUIRE_EMAIL=true) */}
+          {requireEmail && (
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="text-sm font-medium text-foreground" htmlFor="work-email">
+                Work Email <span className="text-destructive">*</span>
+              </label>
+              <Input
+                id="work-email"
+                type="email"
+                inputMode="email"
+                placeholder="you@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={`h-12 sm:h-12 text-[16px] sm:text-base rounded-lg ${error ? 'border-destructive' : ''}`}
+                disabled={isLoading}
+                autoComplete="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
+              />
+            </div>
+          )}
+
+          {error && (
+            <p className="text-sm text-destructive">{error}</p>
+          )}
 
           {/* Submit Button */}
           <Button

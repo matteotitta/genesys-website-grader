@@ -125,8 +125,11 @@ Suggestions: ${d.suggestions.join('; ')}
     ];
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
       max_tokens: 500,
+      // Disable Sonnet 5's default adaptive thinking so the 500-token budget
+      // isn't consumed by reasoning before the chat reply.
+      thinking: { type: 'disabled' },
       system: `${CHAT_SYSTEM_PROMPT}\n\n${analysisContext}`,
       messages: messages.map((m) => ({
         role: m.role,

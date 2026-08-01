@@ -51,6 +51,9 @@ export default function Home() {
   const [slackCopied, setSlackCopied] = useState(false);
   const historyRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
+  // Email captured by the branded email gate; read later in handleStreamEvent's
+  // save-analysis call (which is a separate function from handleSubmit).
+  const submittedEmailRef = useRef<string | undefined>(undefined);
 
   // Skip Google sign-in and run keyless when either: development (default), or
   // an explicit public-demo deploy (NEXT_PUBLIC_PUBLIC_DEMO=true). A real
@@ -105,7 +108,10 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, pendingAnalysis]);
 
-  const handleSubmit = async (url: string) => {
+  const handleSubmit = async (url: string, email?: string) => {
+    // Carry the submitted email (branded email gate) to the save step below.
+    submittedEmailRef.current = email;
+
     // Require Google sign-in before analyzing (skipped in dev-bypass mode)
     if (!user) {
       // Store the URL and flag for auto-start after OAuth redirect
@@ -202,6 +208,7 @@ export default function Home() {
               reportId: data.reportId,
               slug: data.slug,
               mainUrl: currentMainUrl,
+              userEmail: submittedEmailRef.current,
               mainTitle: data.mainTitle,
               mainDescription: data.mainDescription,
               pmScore: data.pmScore,

@@ -54,8 +54,12 @@ async function analyzeWithAnthropic(
 ): Promise<AnthropicResult> {
   console.log('[AI] Analyzing with Anthropic Claude Sonnet...');
   const response = await getAnthropic().messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-5',
     max_tokens: 8192,
+    // Sonnet 5 runs adaptive thinking by default, which would share this
+    // max_tokens budget with the output and risk truncating the JSON scorecard.
+    // Disable it to keep the full budget for the parsed response.
+    thinking: { type: 'disabled' },
     system: systemPrompt,
     messages: [
       {
