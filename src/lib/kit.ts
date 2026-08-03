@@ -13,6 +13,7 @@ import 'server-only';
 
 const KIT_API_KEY = process.env.KIT_API_KEY;
 const KIT_FORM_ID = process.env.KIT_FORM_ID;
+const KIT_TAG_ID = process.env.KIT_TAG_ID;
 const KIT_API_BASE = 'https://api.kit.com/v4';
 
 interface KitSubscriber {
@@ -58,6 +59,13 @@ export async function addSubscriberToNewsletter({ email, firstName }: KitSubscri
   // 2. Add them to the newsletter form (requires the subscriber to exist first).
   if (KIT_FORM_ID) {
     await kitPost(`${KIT_API_BASE}/forms/${KIT_FORM_ID}/subscribers`, {
+      email_address: email,
+    });
+  }
+
+  // 3. Tag them so grader leads are a filterable, exportable segment in Kit.
+  if (KIT_TAG_ID) {
+    await kitPost(`${KIT_API_BASE}/tags/${KIT_TAG_ID}/subscribers`, {
       email_address: email,
     });
   }
